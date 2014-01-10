@@ -248,7 +248,7 @@ div#inside {
 	background-position: center;
 	float: left;
 	display: block;
-	width: 16px;
+	/* width: 16px; */
 	height: 16px;
 	padding: 1px;
 	margin-left: 4px;
