@@ -103,7 +103,7 @@ class HomeController < ApplicationController
       render :action => "about"
     rescue
       render :text => "<div class=\"box wide\">" <<
-        "A mystery." <<
+        "No ads.<br/> No badges.<br/> No clickbait.<br/> No data mining.<br/> No bullshit." <<
         "</div>", :layout => "application"
     end
   end
