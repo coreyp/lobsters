@@ -122,14 +122,14 @@ class HomeController < ApplicationController
 
 private
   def find_stories(how = {})
-    @page = 1
+    @page = how[:page] = 1
     if params[:page].to_i > 0
-      @page = params[:page].to_i
+      @page = how[:page] = params[:page].to_i
     end
 
     # guest views have caching, but don't bother for logged-in users or dev or
     # when the user has tag filters
-    if Rails.env == "development" || @user || tags_filtered_by_cookie.any?
+    if Rails.env.development? || @user || tags_filtered_by_cookie.any?
       stories, @show_more = _find_stories(how)
     else
       stories, @show_more = Rails.cache.fetch("stories " <<
@@ -193,28 +193,33 @@ private
       )
     end
 
-    if how[:recent] && @page == 1
+    if how[:recent] && how[:page] == 1
       # try to help recently-submitted stories that didn't gain traction
 
-      # grab the list of stories from the past n days, shifting out popular
-      # stories that did gain traction
-      story_ids = stories.select(:id, :upvotes, :downvotes).
-        where(Story.arel_table[:created_at].gt(RECENT_DAYS_OLD.days.ago)).
-        order("stories.created_at DESC").
-        reject{|s| s.score > HOT_STORY_POINTS }
+      story_ids = []
 
-      if story_ids.length > STORIES_PER_PAGE + 1
-        # keep the top half (newest stories)
-        keep_ids = story_ids[0 .. ((STORIES_PER_PAGE + 1) * 0.5)]
-        story_ids = story_ids[keep_ids.length - 1 ... story_ids.length]
+      10.times do |x|
+        # grab the list of stories from the past n days, shifting out popular
+        # stories that did gain traction
+        story_ids = stories.select(:id, :upvotes, :downvotes).
+          where(Story.arel_table[:created_at].gt((RECENT_DAYS_OLD + x).days.ago)).
+          order("stories.created_at DESC").
+          reject{|s| s.score > HOT_STORY_POINTS }
 
-        # make the bottom half a random selection of older stories
-        while keep_ids.length <= STORIES_PER_PAGE + 1
-          story_ids.shuffle!
-          keep_ids.push story_ids.shift
+        if story_ids.length > STORIES_PER_PAGE + 1
+          # keep the top half (newest stories)
+          keep_ids = story_ids[0 .. ((STORIES_PER_PAGE + 1) * 0.5)]
+          story_ids = story_ids[keep_ids.length - 1 ... story_ids.length]
+
+          # make the bottom half a random selection of older stories
+          while keep_ids.length <= STORIES_PER_PAGE + 1
+            story_ids.shuffle!
+            keep_ids.push story_ids.shift
+          end
+
+          stories = Story.where(:id => keep_ids)
+          break
         end
-
-        stories = Story.where(:id => keep_ids)
       end
     end
 
@@ -223,7 +228,7 @@ private
     ).limit(
       STORIES_PER_PAGE + 1
     ).offset(
-      (@page - 1) * STORIES_PER_PAGE
+      (how[:page] - 1) * STORIES_PER_PAGE
     ).order(
       (how[:newest] || how[:recent]) ? "stories.created_at DESC" : "hotness"
     ).to_a

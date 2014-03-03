@@ -36,11 +36,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  attr_accessible :username, :email, :password, :password_confirmation,
-    :about, :email_replies, :pushover_replies, :pushover_user_key,
-    :pushover_device, :pushover_sound, :email_messages, :pushover_messages,
-    :email_mentions, :pushover_mentions, :mailing_list_enabled, :delete_me
-
   before_save :check_session_token
   before_validation :on => :create do
     self.create_rss_token
@@ -48,7 +43,11 @@ class User < ActiveRecord::Base
   end
 
   BANNED_USERNAMES = [ "admin", "administrator", "hostmaster", "mailer-daemon",
-    "postmaster", "root", "security", "support", "webmaster", ]
+    "postmaster", "root", "security", "support", "webmaster", "moderator",
+    "moderators", ]
+
+  # days old accounts are considered new for
+  NEW_USER_DAYS = 7
 
   def self.recalculate_all_karmas!
     User.all.each do |u|
@@ -100,9 +99,26 @@ class User < ActiveRecord::Base
     true
   end
 
-  def can_downvote?
-    # TODO: maybe change this to require a certain level of karma
-    !is_new?
+  def can_downvote?(obj)
+    if is_new?
+      return false
+    elsif obj.is_a?(Story)
+      if obj.is_downvotable?
+        return true
+      elsif obj.vote == -1
+        # user can unvote
+        return true
+      end
+    elsif obj.is_a?(Comment)
+      if obj.is_downvotable?
+        return true
+      elsif obj.current_vote.try(:vote).to_i == -1
+        # user can unvote
+        return true
+      end
+    end
+
+    false
   end
 
   def check_session_token
@@ -166,7 +182,7 @@ class User < ActiveRecord::Base
   end
 
   def is_new?
-    Time.now - self.created_at <= 7.days
+    Time.now - self.created_at <= NEW_USER_DAYS.days
   end
 
   def linkified_about
@@ -176,7 +192,7 @@ class User < ActiveRecord::Base
   end
 
   def most_common_story_tag
-    Tag.joins(
+    Tag.active.joins(
       :stories
     ).where(
       :stories => { :user_id => self.id }

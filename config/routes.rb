@@ -61,6 +61,8 @@ Lobsters::Application.routes.draw do
     get "/comments/page/:page" => "comments#index"
 
     get "/messages/sent" => "messages#sent"
+    post "/messages/batch_delete" => "messages#batch_delete",
+      :as => "batch_delete_messages"
     resources :messages do
       post "keep_as_new"
     end
@@ -88,6 +90,8 @@ Lobsters::Application.routes.draw do
     post "/invitations/send_for_request" => "invitations#send_for_request",
       :as => "send_invitation_for_request"
     get "/invitations/:invitation_code" => "signup#invited"
+    post "/invitations/delete_request" => "invitations#delete_request",
+      :as => "delete_invitation_request"
 
     get "/moderations" => "moderations#index"
     get "/moderations/page/:page" => "moderations#index"

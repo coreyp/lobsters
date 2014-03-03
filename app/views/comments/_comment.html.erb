@@ -14,7 +14,7 @@ class="comment <%= comment.current_vote ? (comment.current_vote[:vote] == 1 ?
         <%= link_to "", login_url, :class => "upvoter" %>
       <% end %>
       <div class="score"><%= comment.score %></div>
-      <% if @user && @user.can_downvote? %>
+      <% if @user && @user.can_downvote?(comment) %>
         <a class="downvoter"></a>
       <% else %>
         <span class="downvoter downvoter_stub"></span>
@@ -36,10 +36,13 @@ class="comment <%= comment.current_vote ? (comment.current_vote[:vote] == 1 ?
         <% end %>
         ><%= comment.user.username %></a>
 
-        <%= comment.has_been_edited?? "edited" : "" %>
+        <% if comment.has_been_edited? %>
+          edited
+        <% elsif comment.is_from_email? %>
+          e-mailed
+        <% end %>
         <%= raw(time_ago_in_words_label(comment.has_been_edited? ?
           comment.updated_at : comment.created_at).gsub(/^about /, "")) %> ago
-        <%= comment.is_from_email?? "via e-mail" : "" %>
       <% end %>
 
       <% if !comment.previewing %>
