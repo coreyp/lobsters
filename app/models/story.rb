@@ -10,8 +10,6 @@ class Story < ActiveRecord::Base
   validates_length_of :description, :maximum => (64 * 1024)
   validates_presence_of :user_id
 
-  DOWNVOTABLE_DAYS = 14
-
   # after this many minutes old, a story cannot be edited
   MAX_EDIT_MINS = 30
 
@@ -22,10 +20,10 @@ class Story < ActiveRecord::Base
     :seen_previous
   attr_accessor :editor_user_id, :moderation_reason
 
-  before_validation :assign_short_id,
+  before_validation :assign_short_id_and_upvote,
     :on => :create
   before_save :log_moderation
-  after_create :mark_submitter
+  after_create :mark_submitter, :record_initial_upvote
 
   validate do
     if self.url.present?
@@ -113,13 +111,13 @@ class Story < ActiveRecord::Base
     h
   end
 
-  def assign_short_id
+  def assign_short_id_and_upvote
     self.short_id = ShortId.new(self.class).generate
+    self.upvotes = 1
   end
 
   def calculated_hotness
-    # don't immediately kill stories at 0 by bumping up score by one
-    order = Math.log([ (score + 1).abs, 1 ].max, 10)
+    order = Math.log([ score.abs, 1 ].max, 10)
     if score > 0
       sign = 1
     elsif score < 0
@@ -225,14 +223,6 @@ class Story < ActiveRecord::Base
       "hotness = '#{self.calculated_hotness}' WHERE id = #{self.id.to_i}")
   end
 
-  def is_downvotable?
-    if self.created_at
-      Time.now - self.created_at <= DOWNVOTABLE_DAYS.days
-    else
-      false
-    end
-  end
-
   def is_editable_by_user?(user)
     if user && user.is_moderator?
       return true
@@ -302,6 +292,11 @@ class Story < ActiveRecord::Base
 
   def recalculate_hotness!
     update_column :hotness, calculated_hotness
+  end
+
+  def record_initial_upvote
+    Vote.vote_thusly_on_story_or_comment_for_user_because(1, self.id, nil,
+      self.user_id, nil, false)
   end
 
   def short_id_url
@@ -399,27 +394,5 @@ class Story < ActiveRecord::Base
 
   def url_or_comments_url
     self.url.blank? ? self.comments_url : self.url
-  end
-
-  def vote_summary_for(user)
-    r_counts = {}
-    r_whos = {}
-    Vote.where(:story_id => self.id, :comment_id => nil).each do |v|
-      r_counts[v.reason.to_s] ||= 0
-      r_counts[v.reason.to_s] += v.vote
-      if user && user.is_moderator?
-        r_whos[v.reason.to_s] ||= []
-        r_whos[v.reason.to_s].push v.user.username
-      end
-    end
-
-    r_counts.keys.sort.map{|k|
-      if k == ""
-        "+#{r_counts[k]}"
-      else
-        "#{r_counts[k]} #{Vote::STORY_REASONS[k]}" +
-          (user && user.is_moderator?? " (#{r_whos[k].join(", ")})" : "")
-      end
-    }.join(", ")
   end
 end

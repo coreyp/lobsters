@@ -372,7 +372,6 @@ ol.search_results li.story {
 
 div.voters {
 	float: left;
-	margin-top: -4px;
 	width: 40px;
 }
 
@@ -428,8 +427,8 @@ li.story {
 	clear: both;
 }
 li.story div.story_liner {
-	padding-top: 0.4em;
-	padding-bottom: 0.4em;
+	padding-top: 0.3em;
+	padding-bottom: 0.3em;
 }
 .comment {
 	clear: both;
@@ -513,6 +512,12 @@ li .byline a.inactive_user {
 	text-decoration: line-through;
 }
 
+li.story.hidden {
+	opacity: 0.25;
+}
+ol.show_hidden li.story.hidden {
+	opacity: 1.0 !important;
+}
 
 li.story.expired {
 	opacity: 0.6;
