@@ -15,7 +15,9 @@ html {
 body, textarea, input, button {
 	font-family: "helvetica neue", arial, sans-serif;
 	font-size: 9.5pt;
-	color: #333;
+	/* color: #333; */
+	color: #657b83;
+	background: #fdf6e3;
 }
 
 a {
@@ -265,7 +267,8 @@ div#inside {
 	display: inline;
 }
 #header h1 a {
-	color: #333;
+	/* color: #333; */
+	color: #657b83;
 	text-decoration: none;
 }
 
@@ -273,7 +276,8 @@ div#inside {
 	padding-right: 0.75em;
 }
 #headertitle a {
-	color: #333;
+	/* color: #333; */
+	color: #657b83;
 	text-decoration: none;
 }
 
@@ -294,7 +298,8 @@ div#inside {
 }
 
 #header a.cur_url {
-	color: #333;
+	/* color: #333; */
+	color: #657b83;
 }
 
 #header a.new_messages {
