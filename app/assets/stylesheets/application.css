@@ -70,6 +70,11 @@ a.tag_meta {
 	border-color: #c8c8c8;
 }
 
+a.tag_Africa, a.tag_Asia, a.tag_Americas, a.tag_Antarctica, a.tag_Europe, a.tag_Oceania {
+	background-color: #66e275;
+	border-color: #006a55;
+}
+
 span.fakea {
 	cursor: pointer;
 	text-decoration: underline;
