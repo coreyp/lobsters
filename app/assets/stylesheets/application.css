@@ -15,9 +15,9 @@ html {
 body, textarea, input, button {
 	font-family: "helvetica neue", arial, sans-serif;
 	font-size: 9.5pt;
-	/* color: #333; */
-	color: #657b83;
-	background: #fdf6e3;
+	color: #333;
+	/* color: #657b83;
+	background: #fdf6e3; */
 }
 
 a {
@@ -73,7 +73,7 @@ a.tag_meta {
 }
 
 a.tag_Africa, a.tag_Asia, a.tag_Americas, a.tag_Antarctica, a.tag_Europe, a.tag_Oceania {
-	background-color: #66e275;
+	background-color: #B9FD99;
 	border-color: #006a55;
 }
 
@@ -267,8 +267,8 @@ div#inside {
 	display: inline;
 }
 #header h1 a {
-	/* color: #333; */
-	color: #657b83;
+	color: #333;
+	/* color: #657b83; */
 	text-decoration: none;
 }
 
@@ -276,8 +276,8 @@ div#inside {
 	padding-right: 0.75em;
 }
 #headertitle a {
-	/* color: #333; */
-	color: #657b83;
+	color: #333; 
+	/* color: #657b83; */
 	text-decoration: none;
 }
 
@@ -298,8 +298,8 @@ div#inside {
 }
 
 #header a.cur_url {
-	/* color: #333; */
-	color: #657b83;
+	color: #333; 
+	/* color: #657b83; */
 }
 
 #header a.new_messages {
