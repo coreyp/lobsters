@@ -37,8 +37,8 @@
         title="<%= Rails.application.name %> (<%= @traffic.to_i %>)">No Noise News</a>
 
         <% links = {
-          "/" => "Home",
           "/newest" => "Newest",
+          "/t/podcast" => "Podcast",
           "/comments" => "Comments"
         } %>
 
@@ -47,7 +47,7 @@
             "/stories/new" => "Submit Story" }) %>
         <% end %>
 
-        <% links.merge!({ "/search" => "Search" }) %>
+        <%# links.merge!({ "/search" => "Search" }) %>
 
         <% if @cur_url.present? && !links.keys.include?(@cur_url) &&
         @heading.present? %>
